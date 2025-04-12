@@ -47,7 +47,9 @@ CREATE TABLE MINICURSO (
 -- Armazenamento de tema que fará relação com artigo e comissão
 CREATE TABLE TEMA(
 	ID_TEMA INT PRIMARY KEY,
-    NOME_TEMA VARCHAR(50)
+    NOME_TEMA VARCHAR(50),
+    ID_SIMPOSIO INT, 
+    FOREIGN KEY (ID_SIMPOSIO) REFERENCES SIMPOSIO (ID_SIMPOSIO)
 );
 
 -- Criação de tabela artigo
@@ -96,9 +98,7 @@ CREATE TABLE INSCRICAO (
     ID_INSCRICAO INT PRIMARY KEY,
     DATA_INSCRICAO DATE,
     ID_PESSOA INT,
-    ID_SIMPOSIO INT,
-    FOREIGN KEY (ID_PESSOA) REFERENCES PESSOA(ID_PESSOA),
-    FOREIGN KEY (ID_SIMPOSIO) REFERENCES SIMPOSIO(ID_SIMPOSIO)
+    FOREIGN KEY (ID_PESSOA) REFERENCES PESSOA(ID_PESSOA)
 );
 
 -- Criação de tabela INSCRICAO_MINICURSO
@@ -145,10 +145,10 @@ INSERT INTO PESSOA (ID_PESSOA, NOME, EMAIL, IDADE) VALUES
 (4, 'Ana Pereira', 'ana.pereira@email.com', 27),
 (5, 'Ricardo Santos', 'ricardo.santos@email.com', 34),
 (6, 'Fernanda Lima', 'fernanda.lima@email.com', 22),
-(7, 'Thigo Thomasi', 'thiagao@gmail.com', 19),
-(8, 'Thiago Balbinot', 'thiaguinho@gmail.com', 19),
-(9, 'Mateus Ferreira', 'mateus.ferreira@gmail.com', 20),
-(10, 'Rhyan', 'rhyan@gmail.com', 19),
+(7, 'Thigo Thomasi', 'rolisso@gmail.com', 19),
+(8, 'Thiago Balbinot', 'magrão@gmail.com', 19),
+(9, 'Mateus Ferreira', 'megamente@gmail.com', 20),
+(10, 'Rhyan', 'aqui.nabranch@gmail.com', 19),
 (11, 'Mauricio da Silva', 'mauricio.silva@gmail.com', 32),
 (12, 'Fernanda Silva', 'fernanda.silva@email.com', 20),
 (13, 'João Pedro', 'joao.pedro@email.com', 19),
@@ -164,12 +164,12 @@ INSERT INTO MINICURSO (ID_MINICURSO, TITULO, DESCRICAO, DATA_INICIO, DATA_FIM, I
 (3, 'Realidade Virtual', 'Desenvolvimento de aplicações VR', '2025-03-31', '2025-04-06', 3, 1);
 
 -- Inserindo dados na tabela TEMA
-INSERT INTO TEMA (ID_TEMA, NOME_TEMA) VALUES
-(1, 'BANCO DE DADOS'),
-(2, 'REDES'),
-(3, 'REALIDADE VIRTUAL'),
-(4, 'LINUX'),
-(5, 'SERVIDORES');
+INSERT INTO TEMA (ID_TEMA, NOME_TEMA, ID_SIMPOSIO) VALUES
+(1, 'BANCO DE DADOS', 1),
+(2, 'REDES', 1),
+(3, 'REALIDADE VIRTUAL', 1),
+(4, 'LINUX', 1),
+(5, 'SERVIDORES', 1);
 
 -- Inserindo dados na tabela ARTIGO
 INSERT INTO ARTIGO (ID_ARTIGO, TITULO, RESUMO, ID_TEMA, ID_SIMPOSIO) VALUES
@@ -197,13 +197,13 @@ INSERT INTO PARECER (ID_PARECER, DESCRICAO, DATA, ID_ARTIGO, ID_COMISSAO) VALUES
 
 
 -- Inserindo dados na tabela INSCRICAO
-INSERT INTO INSCRICAO (ID_INSCRICAO, DATA_INSCRICAO, ID_PESSOA, ID_SIMPOSIO) VALUES
-(1, '2025-03-30', 4, 1),
-(2, '2025-03-30', 5, 1),
-(3, '2025-03-30', 6, 1),
-(4, '2025-03-30', 1, 1),
-(5, '2025-03-30', 2, 1),
-(6, '2025-03-30', 3, 1);
+INSERT INTO INSCRICAO (ID_INSCRICAO, DATA_INSCRICAO, ID_PESSOA) VALUES
+(1, '2025-03-30', 4),
+(2, '2025-03-30', 5),
+(3, '2025-03-30', 6),
+(4, '2025-03-30', 1),
+(5, '2025-03-30', 2),
+(6, '2025-03-30', 3);
 
 -- Inserindo dados na tabela INSCRICAO_MINICURSO
 INSERT INTO INSCRICAO_MINICURSO (ID_INSCRICAO, ID_MINICURSO) VALUES
@@ -231,3 +231,57 @@ INSERT INTO COMISSAO_PESSOA (ID_COMISSAO, ID_PESSOA) VALUES
 (4, 14),
 (5, 15),
 (5, 16);
+
+-- Inserindo métodos de Pesquisa
+
+-- Selecionar todos os dados de todas as tabelas
+SELECT * FROM SIMPOSIO;
+SELECT * FROM PESSOA;
+SELECT * FROM MINICURSO;
+SELECT * FROM TEMA;
+SELECT * FROM ARTIGO;
+SELECT * FROM COMISSAO_CIENTIFICA;
+SELECT * FROM PARECER;
+SELECT * FROM INSCRICAO;
+SELECT * FROM INSCRICAO_MINICURSO;
+SELECT * FROM ARTIGO_AUTOR;
+SELECT * FROM COMISSAO_PESSOA;
+
+-- Selecionar o nome e email de todas as pessoas com idade superior a 20 anos
+SELECT NOME, EMAIL FROM PESSOA WHERE IDADE > 25;
+
+-- Selecionar os títulos dos minicursos que acontecem no Simpósio de Tecnologia
+SELECT m.TITULO
+FROM MINICURSO m
+JOIN SIMPOSIO s ON m.ID_SIMPOSIO = s.ID_SIMPOSIO
+WHERE s.NOME = 'Simpósio de Tecnologia';
+
+-- Selecionar os títulos dos artigos do tema 'BANCO DE DADOS'
+SELECT a.TITULO
+FROM ARTIGO a
+JOIN TEMA t ON a.ID_TEMA = t.ID_TEMA
+WHERE t.NOME_TEMA = 'BANCO DE DADOS';
+
+-- Selecionar o nome das pessoas que fazem parte da comissão científica do tema 'REDES'
+SELECT DISTINCT p.NOME
+FROM PESSOA p
+JOIN COMISSAO_PESSOA cp ON p.ID_PESSOA = cp.ID_PESSOA
+JOIN COMISSAO_CIENTIFICA cc ON cp.ID_COMISSAO = cc.ID_COMISSAO
+JOIN TEMA t ON cc.ID_TEMA = t.ID_TEMA
+WHERE t.NOME_TEMA = 'REDES';
+
+-- Selecionar o título dos artigos e a descrição dos pareceres correspondentes
+SELECT a.TITULO AS TituloArtigo, p.DESCRICAO AS DescricaoParecer
+FROM ARTIGO a
+JOIN PARECER p ON a.ID_ARTIGO = p.ID_ARTIGO;
+
+-- Contar o número total de inscritos no simpósio
+SELECT COUNT(DISTINCT ID_PESSOA) AS TotalInscritos FROM INSCRICAO;
+
+-- Excluindo Dados
+
+-- Deletar uma inscrição específica
+DELETE FROM INSCRICAO WHERE ID_INSCRICAO = 6;
+
+-- Deletar um parecer específico
+DELETE FROM PARECER WHERE ID_PARECER = 2;
